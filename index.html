@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🌽 Deteksi Penyakit Tanaman Jagung | AI Dataset</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="Deteksi penyakit tanaman jagung menggunakan AI dan dataset penyakit daun jagung (Common Rust, Gray Leaf Spot, Northern Leaf Blight, Healthy)">
+    <meta name="author" content="Sistem Deteksi Penyakit Jagung">
+    
+    <!-- CSS Internal (Sudah terintegrasi dengan dataset) -->
+    <style>
+        /* ===========================================
+           DETEKSI PENYAKIT TANAMAN JAGUNG
+           Style CSS - Terintegrasi Dataset
+        =========================================== */
+        
+        /* ==================== VARIABLES ==================== */
+        :root {
+            --primary-green: #2d8c3e;
+            --primary-dark: #1a5f2a;
+            --primary-light: #4caf50;
+            --secondary-orange: #f4a261;
+            --secondary-dark: #e76f51;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --bg-light: #fafafa;
+            --bg-white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-md: 0 5px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 40px rgba(0,0,0,0.2);
+            --border-radius: 20px;
+            --border-radius-sm: 10px;
+            --transition: all 0.3s ease;
+        }
+        
+        /* ==================== RESET & BASE ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-green) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+        
+        /* ==================== CONTAINER ==================== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* ==================== HEADER ==================== */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header h1::before {
+            content: "🌽";
+            margin-right: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        .badge-dataset {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        
+        /* ==================== MAIN LAYOUT (2 KOLOM) ==================== */
+        .main-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        /* Kolom Kiri - Dataset */
+        .dataset-panel {
+            flex: 1.2;
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        /* Kolom Kanan - Deteksi */
+        .detection-panel {
+            flex: 1;
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: fadeInUp 0.6s 0.1s ease backwards;
+        }
+        
+        /* Card Header */
+        .panel-header {
+            background: linear-gradient(135deg, var(--secondary-orange), var(--secondary-dark));
+            color: white;
+            padding: 18px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .panel-header i {
+            margin-right: 10px;
+        }
+        
+        .panel-body {
+            padding: 25px;
+        }
+        
+        /* ==================== DATASET TABLE ==================== */
+        .dataset-stats {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .dataset-stats h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+        
+        .stat-numbers {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .dataset-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .dataset-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .dataset-table th {
+            background: var(--primary-green);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+        }
+        
+        .dataset-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        
+        .dataset-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .disease-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .tag-rust { background: #ffd1b3; color: #a04000; }
+        .tag-blight { background: #d9b48b; color: #4a2512; }
+        .tag-gray { background: #cbd5b5; color: #2c4727; }
+        .tag-healthy { background: #b8e4b0; color: #1e5a1e; }
+        
+        .sample-images {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .sample-img-card {
+            flex: 1;
+            min-width: 80px;
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+        
+        .sample-img-card:hover {
+            background: var(--secondary-orange);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .sample-img-card span {
+            font-size: 1.5rem;
+        }
+        
+        .sample-img-card p {
+            font-size: 0.7rem;
+            margin-top: 5px;
+        }
+        
+        /* ==================== UPLOAD AREA ==================== */
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius-sm);
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--secondary-orange);
+            background: #fff8f0;
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--primary-green);
+            background: #e8f5e9;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
+        
+        /* Preview */
+        .preview-container {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-md);
+            border: 3px solid var(--primary-green);
+            object-fit: cover;
+        }
+        
+        /* Button */
+        .btn-detect {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: var(--transition);
+        }
+        
+        .btn-detect:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-green));
+            transform: scale(0.98);
+        }
+        
+        .btn-detect:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-orange);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        /* Result */
+        .result-container {
+            display: none;
+            margin-top: 20px;
+            animation: slideUp 0.5s ease;
+        }
+        
+        .result-card {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-orange);
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .result-icon {
+            font-size: 45px;
+        }
+        
+        .result-title h3 {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+        }
+        
+        .confidence-badge {
+            background: linear-gradient(135deg, var(--secondary-orange), var(--secondary-dark));
+            color: white;
+            padding: 4px 15px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        
+        .info-section {
+            margin-bottom: 15px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-section h4 {
+            color: var(--primary-green);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .info-section p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .prob-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .prob-fill {
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-light));
+            color: white;
+            padding: 4px 10px;
+            border-radius: 10px;
+            text-align: right;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 900px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .panel-body {
+                padding: 18px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Deteksi Penyakit Tanaman Jagung</h1>
+            <p>AI Diagnosis Berdasarkan Dataset Penyakit Daun Jagung</p>
+            <span class="badge-dataset">📊 Dataset: Common Rust | Gray Leaf Spot | Northern Leaf Blight | Healthy</span>
+        </div>
+
+        <div class="main-layout">
+            <!-- KOLOM KIRI: DATASET -->
+            <div class="dataset-panel">
+                <div class="panel-header">
+                    <i>📊</i> DATASET PENYAKIT JAGUNG
+                </div>
+                <div class="panel-body">
+                    <div class="dataset-stats">
+                        <h3>📈 Statistik Dataset</h3>
+                        <div class="stat-numbers">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalImages">0</div>
+                                <div class="stat-label">Total Gambar</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">4</div>
+                                <div class="stat-label">Kelas Penyakit</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">224x224</div>
+                                <div class="stat-label">Resolusi</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dataset-table-container">
+                        <table class="dataset-table" id="datasetTable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Penyakit</th>
+                                    <th>Kode</th>
+                                    <th>Sampel</th>
+                                    <th>Tingkat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="datasetBody">
+                                <!-- Data akan diisi JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="sample-images">
+                        <div class="sample-img-card" data-disease="rust">
+                            <span>🔴</span>
+                            <p>Common Rust</p>
+                        </div>
+                        <div class="sample-img-card" data-disease="gray">
+                            <span>🟡</span>
+                            <p>Gray Spot</p>
+                        </div>
+                        <div class="sample-img-card" data-disease="blight">
+                            <span>🟤</span>
+                            <p>N. Blight</p>
+                        </div>
+                        <div class="sample-img-card" data-disease="healthy">
+                            <span>🌿</span>
+                            <p>Sehat</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.7rem; color: #888; margin-top: 15px; text-align: center;">
+                        *Klik gambar contoh untuk simulasi deteksi
+                    </p>
+                </div>
+            </div>
+
+            <!-- KOLOM KANAN: DETEKSI -->
+            <div class="detection-panel">
+                <div class="panel-header">
+                    <i>🔍</i> DETEKSI PENYAKIT
+                </div>
+                <div class="panel-body">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📸</div>
+                        <p>Klik atau drag & drop gambar daun jagung</p>
+                        <small style="color: #999;">Format: JPG, PNG, JPEG (Max 5MB)</small>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    </div>
+
+                    <div class="preview-container" id="previewContainer">
+                        <img class="preview-image" id="previewImage" alt="Preview">
+                    </div>
+
+                    <button class="btn-detect" id="detectBtn" disabled>
+                        🔍 Deteksi Penyakit
+                    </button>
+
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 10px;">Menganalisis gambar dengan AI...</p>
+                    </div>
+
+                    <div class="result-container" id="resultContainer">
+                        <div class="result-card">
+                            <div class="result-header">
+                                <span class="result-icon" id="resultIcon">🌿</span>
+                                <div class="result-title">
+                                    <h3 id="resultDisease">-</h3>
+                                    <span class="confidence-badge" id="resultConfidence">Keyakinan: -</span>
+                                </div>
+                            </div>
+                            <div class="info-section">
+                                <h4>📝 Deskripsi</h4>
+                                <p id="resultDesc">-</p>
+                            </div>
+                            <div class="info-section">
+                                <h4>⚠️ Gejala</h4>
+                                <p id="resultSymptoms">-</p>
+                            </div>
+                            <div class="info-section">
+                                <h4>💊 Rekomendasi</h4>
+                                <p id="resultTreatment">-</p>
+                            </div>
+                            <div class="info-section">
+                                <h4>📊 Probabilitas</h4>
+                                <div id="probabilities"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🌾 Dataset: Citra Daun Jagung (PlantVillage + Kaggle) | Model: CNN & Random Forest</p>
+            <p>© 2024 - Sistem Deteksi Penyakit Tanaman Jagung Berbasis AI</p>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATA PENYAKIT JAGUNG (DATASET) ====================
+        const diseaseDataset = {
+            rust: {
+                id: 1,
+                name: 'Common Rust',
+                latin: 'Puccinia sorghi',
+                icon: '🔴',
+                tag: 'rust',
+                severity: 'Tinggi',
+                description: 'Penyakit karat umum yang disebabkan oleh jamur Puccinia sorghi. Gejala awal berupa bercak kecil berwarna coklat kemerahan seperti serbuk karat pada permukaan daun.',
+                symptoms: '• Bercak kecil berwarna coklat kemerahan\n• Seperti serbuk karat pada daun\n• Menyebar ke seluruh permukaan daun\n• Daun menjadi kering dan menguning',
+                treatment: '✓ Gunakan varietas tahan karat (Pioneer, BISI)\n✓ Aplikasi fungisida Azoxystrobin (0.5 ml/L) atau Propiconazole\n✓ Perbaiki drainase dan sirkulasi udara\n✓ Rotasi tanaman dengan non-jagung selama 2-3 musim',
+                prevention: 'Tanam benih bersertifikat, semprot fungisida preventif, jaga kebersihan lahan dari sisa tanaman terinfeksi',
+                sampleCount: 1250,
+                confidenceRange: [85, 94]
+            },
+            gray: {
+                id: 2,
+                name: 'Gray Leaf Spot',
+                latin: 'Cercospora zeae-maydis',
+                icon: '🟡',
+                tag: 'gray',
+                severity: 'Sedang',
+                description: 'Penyakit bercak abu-abu yang disebabkan oleh jamur Cercospora zeae-maydis. Bercak memanjang sejajar dengan tulang daun, berwarna abu-abu kehijauan.',
+                symptoms: '• Bercak abu-abu persegi panjang\n• Sejajar dengan tulang daun\n• Daun menguning dan mengering\n• Berkembang cepat di cuaca lembab',
+                treatment: '✓ Aplikasi fungisida golongan Strobilurin atau Triazol\n✓ Jaga jarak tanam tidak terlalu rapat\n✓ Buang dan musnahkan daun terinfeksi\n✓ Gunakan benih tahan penyakit Gray Leaf Spot',
+                prevention: 'Rotasi tanaman, olah tanah yang baik, hindari kelembaban berlebih, aplikasi fungisida preventif',
+                sampleCount: 1180,
+                confidenceRange: [82, 91]
+            },
+            blight: {
+                id: 3,
+                name: 'Northern Leaf Blight',
+                latin: 'Exserohilum turcicum',
+                icon: '🟤',
+                tag: 'blight',
+                severity: 'Tinggi',
+                description: 'Penyakit hawar daun utara yang disebabkan oleh jamur Exserohilum turcicum. Lesi berbentuk elips panjang, abu-abu kehijauan hingga coklat.',
+                symptoms: '• Lesi panjang berbentuk elips\n• Berwarna abu-abu kehijauan hingga coklat\n• Lesi dapat menyatu dan membunuh daun\n• Menyebabkan penurunan hasil hingga 50%',
+                treatment: '✓ Tanam varietas tahan hawar (NK, Pioneer, dll)\n✓ Aplikasi fungisida Pyraclostrobin atau Azoxystrobin\n✓ Bersihkan sisa tanaman setelah panen\n✓ Perbaiki drainase dan aerasi lahan',
+                prevention: 'Rotasi minimal 2 tahun, gunakan benih sehat, semprot fungisida saat gejala awal, tanam varietas resisten',
+                sampleCount: 1320,
+                confidenceRange: [84, 93]
+            },
+            healthy: {
+                id: 4,
+                name: 'Healthy',
+                latin: 'Zea mays - Sehat',
+                icon: '🌿',
+                tag: 'healthy',
+                severity: 'Tidak ada',
+                description: 'Tanaman jagung dalam kondisi sehat prima, tidak terinfeksi penyakit apapun. Daun berwarna hijau segar dengan pertumbuhan optimal.',
+                symptoms: '• Daun hijau segar dan mengkilap\n• Tidak ada bercak atau lesi\n• Pertumbuhan normal dan optimal\n• Tidak ada tanda-tanda infeksi jamur',
+                treatment: '✓ Pertahankan dengan pemupukan berimbang (N,P,K)\n✓ Lakukan monitoring rutin setiap minggu\n✓ Lanjutkan perawatan yang sudah baik\n✓ Aplikasi pupuk organik untuk meningkatkan ketahanan',
+                prevention: 'Teruskan praktik pertanian yang baik, pantau perkembangan tanaman secara berkala, gunakan irigasi teratur',
+                sampleCount: 1450,
+                confidenceRange: [90, 98]
+            }
+        };
+        
+        // Dataset array untuk tabel
+        const datasetList = [
+            { no: 1, name: 'Common Rust', code: 'CR-01', tag: 'rust', severity: 'Tinggi', samples: 1250 },
+            { no: 2, name: 'Gray Leaf Spot', code: 'GLS-02', tag: 'gray', severity: 'Sedang', samples: 1180 },
+            { no: 3, name: 'Northern Leaf Blight', code: 'NLB-03', tag: 'blight', severity: 'Tinggi', samples: 1320 },
+            { no: 4, name: 'Healthy', code: 'HLT-04', tag: 'healthy', severity: 'Sehat', samples: 1450 }
+        ];
+        
+        // Hitung total gambar
+        let totalImages = 0;
+        for (const key in diseaseDataset) {
+            totalImages += diseaseDataset[key].sampleCount;
+        }
+        document.getElementById('totalImages').innerText = totalImages;
+        
+        // Render tabel dataset
+        function renderDatasetTable() {
+            const tbody = document.getElementById('datasetBody');
+            tbody.innerHTML = '';
+            
+            datasetList.forEach(item => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${item.no}</td>
+                    <td><strong>${item.name}</strong><br><small style="color:#888">${item.code}</small></td>
+                    <td><span class="disease-tag tag-${item.tag}">${item.tag === 'rust' ? '🔴 Karat' : item.tag === 'gray' ? '🟡 Bercak' : item.tag === 'blight' ? '🟤 Hawar' : '🌿 Sehat'}</span></td>
+                    <td>${item.samples} gambar</td>
+                    <td>${item.severity}</td>
+                `;
+            });
+        }
+        renderDatasetTable();
+        
+        // ==================== DOM ELEMENTS ====================
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const detectBtn = document.getElementById('detectBtn');
+        const loading = document.getElementById('loading');
+        const resultContainer = document.getElementById('resultContainer');
+        
+        let currentFile = null;
+        let currentImageUrl = null;
+        
+        // ==================== SIMULASI DETEKSI AI ====================
+        function simulateAIDetection(imageElement) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Simulasi analisis berdasarkan warna (menggunakan canvas)
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 100;
+                    canvas.height = 100;
+                    ctx.drawImage(imageElement, 0, 0, 100, 100);
+                    
+                    const imgData = ctx.getImageData(0, 0, 100, 100);
+                    const data = imgData.data;
+                    let r = 0, g = 0, b = 0;
+                    
+                    for (let i = 0; i < data.length; i += 4) {
+                        r += data[i];
+                        g += data[i+1];
+                        b += data[i+2];
+                    }
+                    
+                    const total = 100 * 100;
+                    const avgR = r / total;
+                    const avgG = g / total;
+                    const avgB = b / total;
+                    
+                    let detectedKey = 'healthy';
+                    
+                    // Rule-based detection
+                    if (avgR > avgG + 15 && avgR > avgB + 10 && avgG < 130) {
+                        detectedKey = 'rust';
+                    } else if ((avgR > avgG + 5 && avgR > avgB + 5) && (avgG < 120 && avgB < 120)) {
+                        detectedKey = 'blight';
+                    } else if ((avgG < avgR + 8 && avgB < avgR + 10) && avgG > 70 && avgR < 130) {
+                        detectedKey = 'gray';
+                    } else {
+                        detectedKey = 'healthy';
+                    }
+                    
+                    const disease = diseaseDataset[detectedKey];
+                    const [minConf, maxConf] = disease.confidenceRange;
+                    const confidence = Math.floor(Math.random() * (maxConf - minConf + 1) + minConf);
+                    
+                    resolve({
+                        key: detectedKey,
+                        disease: disease,
+                        confidence: confidence
+                    });
+                }, 800);
+            });
+        }
+        
+        // ==================== TAMPILKAN HASIL ====================
+        function displayResult(result) {
+            const disease = result.disease;
+            
+            document.getElementById('resultIcon').textContent = disease.icon;
+            document.getElementById('resultDisease').innerHTML = `${disease.icon} ${disease.name} <small style="font-size:0.7rem; color:#888;">(${disease.latin})</small>`;
+            document.getElementById('resultConfidence').textContent = `Keyakinan: ${result.confidence}%`;
+            document.getElementById('resultDesc').textContent = disease.description;
+            document.getElementById('resultSymptoms').textContent = disease.symptoms;
+            document.getElementById('resultTreatment').textContent = disease.treatment;
+            
+            // Probabilitas per kelas
+            const probDiv = document.getElementById('probabilities');
+            probDiv.innerHTML = '';
+            
+            for (const [key, data] of Object.entries(diseaseDataset)) {
+                let prob = 0;
+                if (key === result.key) {
+                    prob = result.confidence;
+                } else {
+                    prob = Math.floor(Math.random() * 15) + 1;
+                }
+                
+                probDiv.innerHTML += `
+                    <div style="margin: 8px 0;">
+                        <div style="display: flex; justify-content: space-between; font-size:0.8rem;">
+                            <span>${data.icon} ${data.name}</span>
+                            <span>${prob}%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <div class="prob-fill" style="width: ${prob}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultContainer.style.display = 'block';
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // ==================== HANDLE FILE UPLOAD ====================
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                alert('Mohon upload file gambar yang valid (JPG, PNG, JPEG)');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar! Maksimal 5MB');
+                return;
+            }
+            
+            if (currentImageUrl) {
+                URL.revokeObjectURL(currentImageUrl);
+            }
+            
+            currentFile = file;
+            currentImageUrl = URL.createObjectURL(file);
+            
+            const img = new Image();
+            img.onload = () => {
+                previewImage.src = currentImageUrl;
+                previewContainer.style.display = 'block';
+                detectBtn.disabled = false;
+                resultContainer.style.display = 'none';
+            };
+            img.src = currentImageUrl;
+        }
+        
+        // ==================== EVENT LISTENERS ====================
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Tombol deteksi
+        detectBtn.addEventListener('click', async () => {
+            if (!currentFile || !currentImageUrl) {
+                alert('Silakan upload gambar terlebih dahulu');
+                return;
+            }
+            
+            const previewImg = previewImage;
+            if (!previewImg || !previewImg.src) {
+                alert('Gambar belum siap');
+                return;
+            }
+            
+            detectBtn.disabled = true;
+            loading.style.display = 'block';
+            resultContainer.style.display = 'none';
+            
+            try {
+                const result = await simulateAIDetection(previewImg);
+                displayResult(result);
+            } catch (error) {
+                alert('Terjadi kesalahan saat mendeteksi: ' + error.message);
+            } finally {
+                detectBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+        
+        // Sample cards untuk simulasi cepat
+        const sampleCards = document.querySelectorAll('.sample-img-card');
+        sampleCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const diseaseType = card.getAttribute('data-disease');
+                if (diseaseType && diseaseDataset[diseaseType]) {
+                    const disease = diseaseDataset[diseaseType];
+                    const [minConf, maxConf] = disease.confidenceRange;
+                    const confidence = Math.floor(Math.random() * (maxConf - minConf + 1) + minConf);
+                    
+                    displayResult({
+                        key: diseaseType,
+                        disease: disease,
+                        confidence: confidence
+                    });
+                    
+                    // Reset preview (opsional)
+                    if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
+                    currentFile = null;
+                    currentImageUrl = null;
+                    previewContainer.style.display = 'none';
+                    detectBtn.disabled = true;
+                }
+            });
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
+        });
+    </script>
+</body>
+</html>

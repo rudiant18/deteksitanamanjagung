@@ -1,0 +1,14 @@
+DETEKSI TANAMAN JAGUNG/
+│
+├── app.py
+├── templates/
+│   └── index.html
+├── static/
+│   ├── style.css          ← Simpan file ini di sini
+│   └── uploads/           (folder untuk gambar yang diupload)
+└── dataset/
+    └── maize_disease/
+        ├── Common_Rust/
+        ├── Gray_Leaf_Spot/
+        ├── Northern_Leaf_Blight/
+        └── Healthy/

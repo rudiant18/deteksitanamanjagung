@@ -1,14 +1,91 @@
-DETEKSI TANAMAN JAGUNG/
-│
-├── app.py
-├── templates/
-│   └── index.html
-├── static/
-│   ├── style.css          ← Simpan file ini di sini
-│   └── uploads/           (folder untuk gambar yang diupload)
-└── dataset/
-    └── maize_disease/
-        ├── Common_Rust/
-        ├── Gray_Leaf_Spot/
-        ├── Northern_Leaf_Blight/
-        └── Healthy/
+/* Pengaturan Dasar & Font */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+body {
+    background-color: #f4f7f5;
+    color: #2d3748;
+}
+
+/* Header & Banner */
+.header-banner {
+    background: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.badge-kampus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+}
+
+/* Card & Layout */
+.main-container {
+    max-w: 1000px;
+    margin: 0 auto;
+    padding: 32px 16px;
+}
+
+.card-custom {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+/* Interaktivitas Katalog (Bisa Diklik) */
+.katalog-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.katalog-item:hover {
+    transform: translateY(-2px);
+    border-color: #0f766e;
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.1);
+    background: #f0fdfa;
+}
+
+/* Tombol */
+.btn-utama {
+    background-color: #0f766e;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-utama:hover {
+    background-color: #115e59;
+}
+
+/* Animasi Loading Spinner */
+.putar {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Footer */
+footer {
+    background-color: #0f172a;
+    color: #94a3b8;
+}
